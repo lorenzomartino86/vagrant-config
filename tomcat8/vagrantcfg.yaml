@@ -1,0 +1,8 @@
+---
+configs:
+  backend:
+    name: "backend"
+    hostname: "backend.vagrant.local"
+    cpu: 2
+    memory: "1096"
+    ip: 10.1.1.20

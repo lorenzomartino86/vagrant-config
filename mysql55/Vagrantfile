@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+# CPU settings for mysql
+VM_CPU_MYSQL = 2
+VM_MEMORY_MYSQL = 1024
+
+# Database settings
+MYSQLDUMP_USER="dev"
+MYSQLDUMP_PASSWORD="d3v"
+MYSQLDUMP_HOST_DB="mysql.lab.lan"
+
+
+BOX = "bento/centos-5.11"
+BOX_URL = "https://atlas.hashicorp.com/bento/boxes/centos-5.11/versions/2.2.1/providers/virtualbox.box"
+
+# Configure hosts file for host with unix OS (TBD: dos bash scripting for windows initialization)
+# system('sudo sh setting_host_file.bash')
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  
+  # Begin mysql server
+  config.vm.define "mysql" do |mysql|
+	mysql.vm.hostname = "mysql.vagrant.local"
+	mysql.vm.box = BOX
+	mysql.vm.box_url = BOX_URL	
+	mysql.vm.provider "virtualbox" do |v2|
+		v2.memory = VM_MEMORY_MYSQL
+		v2.cpus = VM_CPU_MYSQL
+	end
+	mysql.vm.network "private_network", ip: "10.1.1.10"
+  end
+  
+
+  # set config.ssh.insert_key = false and finally got the packaged box passed the Warning: Authentication failure. Retrying... (loop on vagrant 1.8.5)
+  config.ssh.insert_key = false
+
+  # Begin provisioning
+  config.vm.provision "shell", inline: "yum install python-simplejson -y"
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook.yml"
+      ansible.extra_vars = {
+	    mysqldump_user: MYSQLDUMP_USER,
+	    mysqldump_password: MYSQLDUMP_PASSWORD,
+	    mysqldump_host_db: MYSQLDUMP_HOST_DB
+	  }
+  end
+end 
+
+# Dumping delta data for specific tables using a dump file for dwh_kasat schema
+# system('sudo sh ./scripts/dwh_kasat_limited_dump.sh')
+  

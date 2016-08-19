@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# Before running 'vagrant up' you need to copy the example configuration
+# 'vagrantcfg.yaml.default' to 'vagrantcfg.yaml' and customize its values
+# if needed (however default values are expected to be fine).
+#
+####
+
+require 'yaml'
+
+current_dir    = File.dirname(File.expand_path(__FILE__))
+cfg            = YAML.load_file("#{current_dir}/vagrantcfg.yaml")
+
+VAGRANTFILE_API_VERSION = "2"
+
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "bento/centos-7.2"
+  config.vm.box_url = "https://atlas.hashicorp.com/bento/boxes/centos-7.2/versions/2.2.7/providers/virtualbox.box"
+
+  config.vm.network "private_network", ip: cfg['configs']['backend']['ip']
+  config.vm.hostname = cfg['configs']['backend']['hostname']
+  
+  config.vm.provider "virtualbox" do |v|
+    v.name = cfg['configs']['backend']['name']
+    v.memory = cfg['configs']['backend']['memory']
+    v.cpus = cfg['configs']['backend']['cpu']
+  end
+
+  # set config.ssh.insert_key = false and finally got the packaged box passed the Warning: Authentication failure. Retrying... (loop on vagrant 1.8.5)
+  config.ssh.insert_key = false
+
+  if Vagrant::Util::Platform.windows?
+    config.vm.provision "shell", path: "provision.sh"
+  else
+    config.vm.provision :ansible do |ansible|
+      ansible.playbook = "playbook.yml"
+    end
+  end
+
+end

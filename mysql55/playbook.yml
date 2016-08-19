@@ -1,0 +1,46 @@
+---
+- hosts: mysql
+  tasks:
+
+  - name: configuring hosts file adding mapping of hostname to IP address
+    lineinfile: dest=/etc/hosts line='10.1.1.10   mysql.vagrant.local'  
+    sudo: yes
+
+  - name: restarting network
+    shell: /etc/rc.d/init.d/network restart
+    sudo: yes
+
+  - name: install required packages
+    yum: name={{ item }} state=present
+    sudo: yes
+    with_items:
+    - mysql55-mysql-server
+    - MySQL-python
+
+  - name: ensure that MySQL is running
+    service: name=mysql55-mysqld state=started
+    sudo: yes   
+
+  - name: install custom MySQL configuration
+    template: src=templates/my.cnf.j2 dest=/etc/my.cnf mode=0644
+    sudo: yes
+
+  - name: ensure that MySQL has autostart enabled
+    service: name=mysql55-mysqld enabled=yes
+    sudo: yes 
+
+  - name: ensure that locales are loaded into mysql
+    shell: /opt/rh/mysql55/root/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+
+  - name: ensure that schemas 'transaction_test' is present
+    mysql_db: name={{ item }} state=present
+    with_items:
+    - transaction_test 
+
+  - name: ensure that the 'vagrant' user is present
+    mysql_user: name=vagrant password=vagrant priv=*.*:ALL host="%" state=present
+
+  - name: flushing all privileges of user 'vagrant'
+    shell: '"flush privileges" | mysql -uroot'
+  
+

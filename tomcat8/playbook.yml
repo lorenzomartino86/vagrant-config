@@ -1,0 +1,60 @@
+---
+- hosts: all
+  tasks:
+
+  - name: configuring google public DNS service
+    lineinfile: dest=/etc/resolv.conf line='nameserver 8.8.8.8'  
+    sudo: yes
+
+  - name: configuring hosts file adding mapping of hostname to IP address
+    lineinfile: dest=/etc/hosts line='10.1.1.20   backend.vagrant.local'  
+    sudo: yes
+
+  - name: restarting network
+    shell: /etc/rc.d/init.d/network restart
+    sudo: yes
+
+  - name: installs required packages
+    yum: name={{ item }} state=present
+    sudo: yes
+    with_items:
+      - java-1.8.0-openjdk-devel
+
+  - name: downloads Tomcat 8 package
+    get_url: url=http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz dest=/tmp/apache-tomcat-8.0.36.tar.gz mode=0640
+
+  - name: extracts Tomcat 8 package into /opt/tomcat
+    unarchive: src=/tmp/apache-tomcat-8.0.36.tar.gz dest=/opt/ copy=no
+    sudo: yes
+
+  - name: creates a symbolik link /opt/tomcat to previously unpacked archive
+    file: state=link dest=/opt/tomcat src=/opt/apache-tomcat-8.0.36
+    sudo: yes
+
+  - name: creates 'tomcat' user
+    user: name=tomcat comment="Tomcat unprivileged user" shell=/bin/bash home=/opt/tomcat
+    sudo: yes
+
+  - name: assigns /opt/apache-tomcat-8.0.36 directory to 'tomcat' user
+    file: state=directory path=/opt/apache-tomcat-8.0.36 owner=tomcat recurse=yes
+    sudo: yes
+
+  - name: creates a systemd service file for Tomcat 8 
+    template: src=templates/tomcat.service dest=/etc/systemd/system/tomcat.service
+    sudo: yes
+
+  - name: configures the tomcat-users.xml access file
+    template: src=templates/tomcat-users.xml dest=/opt/tomcat/conf/tomcat-users.xml
+    sudo: yes
+
+  - name: reload systemd daemon
+    command: systemctl daemon-reload
+    sudo: yes
+
+  - name: starts Tomcat 8 service
+    service: name=tomcat state=started
+    sudo: yes
+
+  - name: enables autostart of Tomcat 8 service at boot
+    service: name=tomcat enabled=yes
+    sudo: yes

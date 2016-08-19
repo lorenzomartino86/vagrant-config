@@ -1,0 +1,23 @@
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+user=mysql
+old_passwords=1
+
+# Define new default port
+port=3306
+
+# Improving upper limit on the size of any single message between the MySQL server and clients
+max_allowed_packet = 64M
+wait_timeout = 6000
+
+# Optimizations to quicken the restore of InnoDB tables
+key_buffer_size=500M
+innodb_autoinc_lock_mode=2
+
+[mysqldump]
+max_allowed_packet = 64M
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
