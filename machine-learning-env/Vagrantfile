@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+# CPU settings for machine-learning environment
+VM_CPU_ML = 2
+VM_MEMORY_ML = 2024
+
+BOX = "bento/centos-7.2"
+BOX_URL = "https://atlas.hashicorp.com/bento/boxes/centos-7.2/versions/2.2.7/providers/virtualbox.box"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  
+  # Begin
+  config.vm.define "ml" do |ml|
+	ml.vm.hostname = "ml.vagrant.local"
+	ml.vm.box = BOX
+	ml.vm.box_url = BOX_URL
+	ml.vm.provider "virtualbox" do |v2|
+		v2.memory = VM_MEMORY_ML
+		v2.cpus = VM_CPU_ML
+	end
+	ml.vm.network "private_network", ip: "10.1.1.50"
+  end
+  
+
+  # set config.ssh.insert_key = false and finally got the packaged box passed the Warning: Authentication failure. Retrying... (loop on vagrant 1.8.5)
+  config.ssh.insert_key = false
+
+  # Begin provisioning
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook.yml"
+  end
+end
