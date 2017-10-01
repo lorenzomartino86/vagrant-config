@@ -21,22 +21,22 @@
       - java-1.8.0-openjdk-devel
 
   - name: downloads Tomcat 8 package
-    get_url: url=http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz dest=/tmp/apache-tomcat-8.0.36.tar.gz mode=0640
+    get_url: url=http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.23/bin/apache-tomcat-8.5.23.tar.gz dest=/tmp/apache-tomcat-8.5.23.tar.gz mode=0640
 
   - name: extracts Tomcat 8 package into /opt/tomcat
-    unarchive: src=/tmp/apache-tomcat-8.0.36.tar.gz dest=/opt/ copy=no
+    unarchive: src=/tmp/apache-tomcat-8.5.23.tar.gz dest=/opt/ copy=no
     sudo: yes
 
   - name: creates a symbolik link /opt/tomcat to previously unpacked archive
-    file: state=link dest=/opt/tomcat src=/opt/apache-tomcat-8.0.36
+    file: state=link dest=/opt/tomcat src=/opt/apache-tomcat-8.5.23
     sudo: yes
 
   - name: creates 'tomcat' user
     user: name=tomcat comment="Tomcat unprivileged user" shell=/bin/bash home=/opt/tomcat
     sudo: yes
 
-  - name: assigns /opt/apache-tomcat-8.0.36 directory to 'tomcat' user
-    file: state=directory path=/opt/apache-tomcat-8.0.36 owner=tomcat recurse=yes
+  - name: assigns /opt/apache-tomcat-8.5.23 directory to 'tomcat' user
+    file: state=directory path=/opt/apache-tomcat-8.5.23 owner=tomcat recurse=yes
     sudo: yes
 
   - name: creates a systemd service file for Tomcat 8 
