@@ -1,0 +1,24 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+BOX = "ubuntu/xenial64"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  
+  # Begin mysql server
+  config.vm.define "jenkins" do |jenkins|
+	jenkins.vm.hostname = "jenkins.local"
+	jenkins.vm.box = BOX
+	jenkins.vm.network "private_network", ip: "10.1.1.10"
+	jenkins.vm.network "forwarded_port", guest: 80, host:8086
+  end
+
+  # Begin provisioning
+  config.vm.provision "shell" do |script|
+      script.path = "provision.sh"
+  end
+
+end 
+
