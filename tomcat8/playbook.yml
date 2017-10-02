@@ -47,6 +47,14 @@
     template: src=templates/tomcat-users.xml dest=/opt/tomcat/conf/tomcat-users.xml
     sudo: yes
 
+  - name: configures the server.xml access file
+    template: src=templates/server.xml dest=/opt/tomcat/conf/server.xml
+    sudo: yes
+
+  - name: configures the context.xml access file
+    template: src=templates/context.xml dest=/opt/tomcat/webapps/manager/META-INF/context.xml
+    sudo: yes
+
   - name: reload systemd daemon
     command: systemctl daemon-reload
     sudo: yes
