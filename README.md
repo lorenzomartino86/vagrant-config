@@ -1,9 +1,10 @@
 # Vagrant Configurations #
-This repository stores all vagrant configurations useful to build VM (Virtualbox) with:
-- tomcat8 web server up & running
-- mysql 5.5
-- windows 7
-- jenkins server
+This repository stores all vagrant configurations useful to build VM (Virtualbox) exposing following services:
+- Tomcat 8 web server
+- Mysql 5.5 database
+- Windows 7 operating sustem
+- Jenkins server
+- Ubuntu operating system
 
 ## Prerequisites ##
 
@@ -21,4 +22,18 @@ sudo apt-get install virtualbox
 and install ansible
 ```
 sudo apt-get install ansible
+```
+
+## Instructions ##
+Go inside folder of the required service and launch following command-line to start it:
+```
+vagrant up
+```
+To stop it:
+```
+vagrant halt
+```
+To delete it (be careful):
+```
+vagrant destroy
 ```
